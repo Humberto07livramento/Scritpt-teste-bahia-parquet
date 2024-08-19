@@ -1,0 +1,17 @@
+df <- df %>%  
+  mutate(  
+    unidade = as.numeric(substr(IDADE, 1, 1)),  # Extrai a unidade de medida da idade
+    quantidade = as.numeric(substr(IDADE, 2, 3))  # Extrai a quantidade da idade
+  ) %>%  
+  mutate(  
+    idade_tratada = case_when(  
+      unidade == 0 ~ quantidade / (60 * 24 * 365),   # Converte minutos para anos
+      unidade == 1 ~ quantidade,                      # Mantém o valor em anos
+      unidade == 2 ~ quantidade / 365,                # Converte dias para anos
+      unidade == 3 ~ quantidade / 12,                 # Converte meses para anos
+      unidade == 4 ~ quantidade,                      # Mantém o valor em anos (sem conversão)
+      unidade == 5 ~ 100 + quantidade,                # Adiciona 100 anos
+      TRUE ~ NA_real_                                 # Trata valores não previstos como NA
+    )  
+  ) %>%  
+  select(-unidade, -quantidade)  # Remove as colunas auxiliares
