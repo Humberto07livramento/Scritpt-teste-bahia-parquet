@@ -1,0 +1,28 @@
+# Instale os pacotes se ainda não estiverem instalados
+install.packages(c("tidyverse", "arrow"))
+
+# Carregue os pacotes
+library(tidyverse)
+library(arrow)
+# Leia os arquivos CSV
+mortalidade_csv <- read_csv("mortalidade_bahia_2018.csv")
+populacao_csv <- read_csv("populacao_bahia_2018.csv")
+
+# Converta os arquivos CSV para Parquet
+write_parquet(mortalidade_csv, "mortalidade_bahia_2018.parquet")
+write_parquet(populacao_csv, "populacao_bahia_2018.parquet")
+# Leia os arquivos Parquet
+mortalidade_parquet <- read_parquet("mortalidade_bahia_2018.parquet")
+populacao_parquet <- read_parquet("populacao_bahia_2018.parquet")
+
+# Combine os dados de mortalidade e população
+dados <- mortalidade_parquet %>%
+  inner_join(populacao_parquet, by = c("municipio", "ano"))
+
+# Calcule a taxa de mortalidade
+# Taxa de mortalidade = (Número de mortes / População) * 1000
+dados <- dados %>%
+  mutate(taxa_mortalidade = (n_mortes / populacao) * 1000)
+
+# Visualize os dados com taxa de mortalidade
+print(dados)
